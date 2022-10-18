@@ -11,8 +11,8 @@ import org.jsoup.select.Elements;
 
 public class Main {
 
-    private static String SiteName = "https://yug-instrument.ru";
-    private static String mainUrl = "https://simferopol.resantagroup.ru";
+    private static String SiteName = "yug-instrument";
+    private static String mainUrl = "https://yug-instrument.ru";
     private static int fromPage = 1;
     private static int toPage = 1;
 
@@ -159,20 +159,20 @@ public class Main {
         for(int w = 0; w < URLPage.size(); w++) {
 
             Document doc = getDoc(URLPage.get(w));
-            Excel excel = new Excel();
-            excel.createExcel();
-            int Row = 0;
             ArrayList<String> resList;
 
             //получили ссылки на страници товаров из меню товаров
             ArrayList<String> ListKartochkiInPage = new ArrayList<>();
             for(int KartochkiInPage = 0; KartochkiInPage < doc.select(".item-title").size(); KartochkiInPage++){
-                ListKartochkiInPage.add(doc.select(".item-title").get(KartochkiInPage).select("a").attr("href"));
+                ListKartochkiInPage.add(mainUrl + doc.select(".item-title").get(KartochkiInPage).select("a").attr("href"));
             }
 
             //проходим по товарам на странице
             for(int nomerTovara = 0; nomerTovara < doc.select(".item-title").size(); nomerTovara++){
                 Document docTovara = getDoc(ListKartochkiInPage.get(nomerTovara));
+                Excel excel = new Excel();
+                excel.createExcel();
+                int Row = 0;
 
                 //регулярным выражением нужно убрать знак "/" из названия!
                 //создает подпапки с названием товара
@@ -181,8 +181,9 @@ public class Main {
                 new File("parsing_" + SiteName + "/" + nameFolder).mkdirs();
 
                 //загрузка картинок
-                for(int e = 0; e < docTovara.select(".product-detail-gallery__picture").size(); e++){
-                    String s = docTovara.select(".product-detail-gallery__picture").attr("src");
+                for(int e = 0; e < docTovara.select(".product-detail-gallery__link").select(".popup_link").select(".fancy").size(); e++){
+                    String s = docTovara.select(".product-detail-gallery__link").select(".popup_link").select(".fancy").attr("href");
+                    System.out.println(s);
                     if(s.contains("/")){
                         try {
                             Download(mainUrl + s, s.substring(s.lastIndexOf("/")).replace("/", ""), "parsing_" + SiteName + "/" + nameFolder);
@@ -191,8 +192,8 @@ public class Main {
                         }
                     }
                 }
-                System.out.println(doc.select(".product_gallery-previews").select("div").select("a").size());
-                if(doc.select(".product_gallery-previews").select("div").select("a").size() == 0){
+                //System.out.println(doc.select(".product_gallery-previews").select("div").select("a").size());
+                /*if(doc.select(".product_gallery-previews").select("div").select("a").size() == 0){
                     if(doc.getElementById("product-image") != null) {
                         String s = doc.getElementById("product-image").attr("src");
                         try {
@@ -201,7 +202,7 @@ public class Main {
                             exception.printStackTrace();
                         }
                     }
-                }
+                }*/
 
                 //Акция
                 resList = getArrayStrOnFile("sale.txt");
@@ -211,20 +212,20 @@ public class Main {
                 Row = Row + resList.size() + 1;
 
                 //описание
-                select = doc.select(".tab-contents");
-                excel.setCell(Row, 0, select.select(".product_description").select("p").text());  //не знаю максимальной длинны строки в ячейке excel. Может быть переполнение!
+                select = doc.select(".tab-pane").select(".active");
+                excel.setCell(Row, 0, select.text());  //не знаю максимальной длинны строки в ячейке excel. Может быть переполнение!
                 Row = Row + 2;
 
                 //характеристики
-                select = doc.select(".product_features");
+                /*select = doc.select(".product_features");
                 for (int q = 0; q < select.select("tr").size(); q++) {
                     String [] res = corrector(select.select("tr").get(q).select("span").text(), select.select("tr").get(q).select(".product_features-value").text());
                     excel.setCell(q + Row, 0, res[0]);
                     excel.setCell(q + Row, 1, res[1]);
-                }
+                }*/
 
-                Row = Row + select.select("tr").size();
-                Row++; //отступ
+                /*Row = Row + select.select("tr").size();
+                Row++; //отступ*/
 
                 //подвал
                 resList = getArrayStrOnFile("bottom.txt");
@@ -235,15 +236,16 @@ public class Main {
 
                 //цена, количество и ссылка на товар
                 Row = Row + 2;
-                select = doc.select(".product__price");
-                excel.setCell(Row, 0, select.attr("data-price"));
+                select = doc.select(".item-stock");
+                excel.setCell(Row, 0, select.get(1).text());
                 Row++;
-                select = doc.select(".pr-stock_el");
-                excel.setCell(Row, 0, select.get(0).text());
+                //select = doc.select(".pr-stock_el");
+                excel.setCell(Row, 0, ListKartochkiInPage.get(nomerTovara));
                 Row++;
                 excel.setCell(Row, 0, URLPage.get(w));
 
-                excel.Build("parsing_" + SiteName + "/" + nameFolder + "/" + nameFolder + ".xlsx");
+                System.out.println("parsing_" + SiteName + "/" + nameFolder + "/" + nameFolder + ".xlsx");
+                excel.Build("parsing_" + SiteName + "/" + nameFolder + "/" + "Описание" + ".xlsx");
 
             }
 
