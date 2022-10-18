@@ -126,7 +126,7 @@ public class Main {
 
     //запись в txt файл
     private static void writeOnTxt(String data, int noOfLines) {
-        File file = new File("/Users/prologistic/BufferedWriter.txt");
+        File file = new File("BufferedWriter.txt");
         FileWriter fr = null;
         BufferedWriter br = null;
         String dataWithNewLine = data + System.getProperty("line.separator");
@@ -212,8 +212,10 @@ public class Main {
                 Row = Row + resList.size() + 1;
 
                 //описание
-                select = doc.select(".tab-pane").select(".active");
-                excel.setCell(Row, 0, select.text());  //не знаю максимальной длинны строки в ячейке excel. Может быть переполнение!
+                System.out.println(doc.select(".tab-pane").select("div").text());
+                //writeOnTxt(doc.html(), 1);
+                select = doc.select(".tab-content").select(".tab-pane");
+                excel.setCell(Row, 0, doc.select(".tab-pane").select("div").text());  //не знаю максимальной длинны строки в ячейке excel. Может быть переполнение!
                 Row = Row + 2;
 
                 //характеристики
