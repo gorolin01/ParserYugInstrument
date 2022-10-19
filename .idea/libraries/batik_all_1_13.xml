@@ -1,0 +1,17 @@
+<component name="libraryTable">
+  <library name="batik-all-1.13">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../lib_IDE/poi-5.0.0/auxiliary/batik-all-1.13.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../lib_IDE/poi-5.0.0/auxiliary/bcpkix-jdk15on-1.68.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../lib_IDE/poi-5.0.0/auxiliary/bcprov-jdk15on-1.68.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../lib_IDE/poi-5.0.0/auxiliary/fontbox-2.0.22.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../lib_IDE/poi-5.0.0/auxiliary/graphics2d-0.30.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../lib_IDE/poi-5.0.0/auxiliary/pdfbox-2.0.22.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../lib_IDE/poi-5.0.0/auxiliary/xml-apis-ext-1.3.04.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../lib_IDE/poi-5.0.0/auxiliary/xmlgraphics-commons-2.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../lib_IDE/poi-5.0.0/auxiliary/xmlsec-2.2.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

@@ -8,6 +8,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.edge.EdgeDriver;
 
 public class Main {
 
@@ -17,6 +20,12 @@ public class Main {
     private static int toPage = 1;
 
     public static void main(String[] args) {
+
+       /* System.setProperty("webdriver.chrome.driver", "selenium\\chromedriver.exe");
+        WebDriver webDriver = new ChromeDriver();
+        webDriver.get("https://yug-instrument.ru/catalog/elektroinstrumenty/pily/pily_montazhnye_otreznye/8869528/");
+        webDriver.getPageSource();*/
+
         try {
             parser(mainUrl, fromPage, toPage);
         } catch (IOException e) {
@@ -158,18 +167,31 @@ public class Main {
 
         for(int w = 0; w < URLPage.size(); w++) {
 
-            Document doc = getDoc(URLPage.get(w));
+            System.setProperty("webdriver.chrome.driver", "selenium\\chromedriver.exe");
+            WebDriver webDriver = new ChromeDriver();
+            webDriver.get(URLPage.get(w));
+
+            //Document doc = getDoc(URLPage.get(w));
+            Document doc = Jsoup.parse(webDriver.getPageSource());
+            webDriver.close();
             ArrayList<String> resList;
 
             //получили ссылки на страници товаров из меню товаров
             ArrayList<String> ListKartochkiInPage = new ArrayList<>();
             for(int KartochkiInPage = 0; KartochkiInPage < doc.select(".item-title").size(); KartochkiInPage++){
+                System.out.println(mainUrl + doc.select(".item-title").get(KartochkiInPage).select("a").attr("href"));
                 ListKartochkiInPage.add(mainUrl + doc.select(".item-title").get(KartochkiInPage).select("a").attr("href"));
             }
 
             //проходим по товарам на странице
             for(int nomerTovara = 0; nomerTovara < doc.select(".item-title").size(); nomerTovara++){
-                Document docTovara = getDoc(ListKartochkiInPage.get(nomerTovara));
+
+                WebDriver webDriverTovar = new ChromeDriver();
+                webDriverTovar.get(ListKartochkiInPage.get(nomerTovara));
+
+                //Document docTovara = getDoc(ListKartochkiInPage.get(nomerTovara));
+                Document docTovara = getDoc(webDriverTovar.getPageSource());
+                webDriverTovar.close();
                 Excel excel = new Excel();
                 excel.createExcel();
                 int Row = 0;
