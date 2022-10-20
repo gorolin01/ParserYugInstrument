@@ -186,12 +186,13 @@ public class Main {
             //проходим по товарам на странице
             for(int nomerTovara = 0; nomerTovara < doc.select(".item-title").size(); nomerTovara++){
 
-                WebDriver webDriverTovar = new ChromeDriver();
-                webDriverTovar.get(ListKartochkiInPage.get(nomerTovara));
+                //работа через селениум дает возможность залогиниться на сайте и получить актуальную цену
+                /*WebDriver webDriverTovar = new ChromeDriver();
+                webDriverTovar.get(ListKartochkiInPage.get(nomerTovara));*/
 
-                //Document docTovara = getDoc(ListKartochkiInPage.get(nomerTovara));
-                Document docTovara = getDoc(webDriverTovar.getPageSource());
-                webDriverTovar.close();
+                Document docTovara = getDoc(ListKartochkiInPage.get(nomerTovara));
+                //Document docTovara = Jsoup.parse(webDriverTovar.getPageSource());
+                //webDriverTovar.close();
                 Excel excel = new Excel();
                 excel.createExcel();
                 int Row = 0;
@@ -237,7 +238,8 @@ public class Main {
                 System.out.println(doc.select(".tab-pane").select("div").text());
                 //writeOnTxt(doc.html(), 1);
                 select = doc.select(".tab-content").select(".tab-pane");
-                excel.setCell(Row, 0, doc.select(".tab-pane").select("div").text());  //не знаю максимальной длинны строки в ячейке excel. Может быть переполнение!
+                //writeOnTxt(docTovara.html(), 1);
+                excel.setCell(Row, 0, docTovara.getElementById("desc").select("div").text());  //не знаю максимальной длинны строки в ячейке excel. Может быть переполнение!
                 Row = Row + 2;
 
                 //характеристики
