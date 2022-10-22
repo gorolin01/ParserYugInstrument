@@ -8,7 +8,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.edge.EdgeDriver;
 
@@ -160,6 +162,8 @@ public class Main {
     public static void parser(String mainUrl, int fromPage, int toPage) throws IOException, NullPointerException {
 
         Elements select;
+        System.setProperty("webdriver.chrome.driver", "selenium\\chromedriver.exe");
+        WebDriver webDriverTovar = new ChromeDriver();
 
         //Date date = new Date();
         new File("parsing_" + SiteName).mkdir();
@@ -262,13 +266,47 @@ public class Main {
 
                 //цена, количество и ссылка на товар
                 Row = Row + 2;
-                select = doc.select(".item-stock");
+                select = doc.select(".item-stock"); //наличие
+                excel.setCell(Row, 0, select.get(1).text());
+                Row++;
+                select = docTovara.select(".item-stock"); //цена (нужно будет сделать через селениум с авторизацией)
                 excel.setCell(Row, 0, select.get(1).text());
                 Row++;
                 //select = doc.select(".pr-stock_el");
                 excel.setCell(Row, 0, ListKartochkiInPage.get(nomerTovara));
                 Row++;
                 excel.setCell(Row, 0, URLPage.get(w));
+                Row++;
+
+                //получим цену через селениум
+                webDriverTovar.get(ListKartochkiInPage.get(nomerTovara));
+                //нажать на кнопку с ценой
+                String tovarURL = ListKartochkiInPage.get(nomerTovara);
+                //вырезаем уникальный номер товара из ссылки
+                String tovarNum = tovarURL.substring(tovarURL.lastIndexOf("/") - 7, tovarURL.lastIndexOf("/"));
+                System.out.println("//*[@id="+"\""+"bx_117848907_" + tovarNum +"\""+"]/div[3]/div/div/div[2]/div[5]/div/button");
+                WebElement btn_2 = webDriverTovar.findElement(By.xpath("//*[@id=\"mCSB_1_container\"]/div/div[2]/span"));
+                btn_2.click();
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                //без авторизации нет этой кнопки
+                WebElement signInButton_1 = webDriverTovar.findElement(By.xpath("//*[@id=\"mobileheader\"]/div[1]/div[3]/div[1]/div/div/a"));
+                signInButton_1.click();
+                WebElement emailField = webDriverTovar.findElement(By.xpath("//*[@id=\"USER_LOGIN_POPUP\"]"));
+                emailField.sendKeys("instrymentsev@yandex.ru");
+                WebElement passwordField = webDriverTovar.findElement(By.xpath("//*[@id=\"USER_PASSWORD_POPUP\"]"));
+                passwordField.sendKeys("222000");
+                WebElement signInButton_2 = webDriverTovar.findElement(By.xpath("//*[@id=\"auth-page-form\"]/div[2]/div[2]/button"));
+                signInButton_2.click();
+
+                WebElement btn = webDriverTovar.findElement(By.xpath("//*[@id="+"\""+"bx_117848907_" + tovarNum +"\""+"]/div[3]/div/div/div[2]/div[5]/div/button"));
+                btn.click();
+                Document docSelenium = Jsoup.parse(webDriverTovar.getPageSource());
+                webDriverTovar.close();
+                excel.setCell(Row, 0, docSelenium.select(".ps_best_price").text());
 
                 System.out.println("parsing_" + SiteName + "/" + nameFolder + "/" + nameFolder + ".xlsx");
                 excel.Build("parsing_" + SiteName + "/" + nameFolder + "/" + "Описание" + ".xlsx");
