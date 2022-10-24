@@ -76,5 +76,7 @@
     <orderEntry type="library" name="Maven: dev.failsafe:failsafe:3.2.4" level="project" />
     <orderEntry type="library" name="Maven: org.seleniumhq.selenium:selenium-safari-driver:4.4.0" level="project" />
     <orderEntry type="library" name="Maven: org.seleniumhq.selenium:selenium-support:4.4.0" level="project" />
+    <orderEntry type="library" name="jsoup-1.11.21" level="project" />
+    <orderEntry type="library" name="commons-codec-1.15" level="project" />
   </component>
 </module>

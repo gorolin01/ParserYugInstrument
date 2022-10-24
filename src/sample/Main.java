@@ -28,6 +28,8 @@ public class Main {
         webDriver.get("https://yug-instrument.ru/catalog/elektroinstrumenty/pily/pily_montazhnye_otreznye/8869528/");
         webDriver.getPageSource();*/
 
+        //ССЫЛКИ СТРАНИЦ С ТОВАРОМ НУЖНО ЗАКИНУТЬ В ФАЙЛ pageForParsing.txt(ССЫЛКИ ПОИСКА)
+
         try {
             parser(mainUrl, fromPage, toPage);
         } catch (IOException e) {
@@ -276,7 +278,7 @@ public class Main {
                 //цена, количество и ссылка на товар
                 Row = Row + 2;
                 select = doc.select(".item-stock"); //наличие
-                excel.setCell(Row, 0, select.get(1).text());
+                excel.setCell(Row, 0, select.get(nomerTovara).text());
                 Row++;
                 select = docTovara.select(".price_matrix_wrapper").get(3).select("div"); //цена (нужно будет сделать через селениум с авторизацией)
                 excel.setCell(Row, 0, select.text());
