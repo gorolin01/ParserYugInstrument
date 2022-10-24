@@ -163,7 +163,7 @@ public class Main {
 
         Elements select;
         System.setProperty("webdriver.chrome.driver", "selenium\\chromedriver.exe");
-        WebDriver webDriverTovar = new ChromeDriver();
+        //WebDriver webDriverTovar = new ChromeDriver();
 
         //Date date = new Date();
         new File("parsing_" + SiteName).mkdir();
@@ -171,13 +171,13 @@ public class Main {
 
         for(int w = 0; w < URLPage.size(); w++) {
 
-            System.setProperty("webdriver.chrome.driver", "selenium\\chromedriver.exe");
+            /*System.setProperty("webdriver.chrome.driver", "selenium\\chromedriver.exe");
             WebDriver webDriver = new ChromeDriver();
-            webDriver.get(URLPage.get(w));
+            webDriver.get(URLPage.get(w));*/
 
-            //Document doc = getDoc(URLPage.get(w));
-            Document doc = Jsoup.parse(webDriver.getPageSource());
-            webDriver.close();
+            Document doc = getDoc(URLPage.get(w));
+            /*Document doc = Jsoup.parse(webDriver.getPageSource());
+            webDriver.close();*/
             ArrayList<String> resList;
 
             //получили ссылки на страници товаров из меню товаров
@@ -257,6 +257,15 @@ public class Main {
                 /*Row = Row + select.select("tr").size();
                 Row++; //отступ*/
 
+                //характеристики
+                select = docTovara.select(".properties").select(".list").get(0).select(".properties__item").select(".properties__item--compact");
+                for(int div = 0; div < select.size(); div++){
+                    excel.setCell(Row, 0, select.get(div).select(".properties__title").text());
+                    excel.setCell(Row, 1, select.get(div).select(".properties__value").text());
+                    Row = Row + 1;
+                }
+                Row = Row + 1;
+
                 //подвал
                 resList = getArrayStrOnFile("bottom.txt");
                 for(int e = 0; e < resList.size(); e++){
@@ -269,22 +278,29 @@ public class Main {
                 select = doc.select(".item-stock"); //наличие
                 excel.setCell(Row, 0, select.get(1).text());
                 Row++;
-                select = docTovara.select(".item-stock"); //цена (нужно будет сделать через селениум с авторизацией)
-                excel.setCell(Row, 0, select.get(1).text());
+                select = docTovara.select(".price_matrix_wrapper").get(3).select("div"); //цена (нужно будет сделать через селениум с авторизацией)
+                excel.setCell(Row, 0, select.text());
                 Row++;
                 //select = doc.select(".pr-stock_el");
                 excel.setCell(Row, 0, ListKartochkiInPage.get(nomerTovara));
                 Row++;
                 excel.setCell(Row, 0, URLPage.get(w));
                 Row++;
+                excel.setCell(Row, 0, docTovara.select(".product-info-headnote__article").text());  //артикул
+                Row++;
 
-                //получим цену через селениум
+                /*//получим цену через селениум
                 webDriverTovar.get(ListKartochkiInPage.get(nomerTovara));
                 //нажать на кнопку с ценой
                 String tovarURL = ListKartochkiInPage.get(nomerTovara);
                 //вырезаем уникальный номер товара из ссылки
                 String tovarNum = tovarURL.substring(tovarURL.lastIndexOf("/") - 7, tovarURL.lastIndexOf("/"));
                 System.out.println("//*[@id="+"\""+"bx_117848907_" + tovarNum +"\""+"]/div[3]/div/div/div[2]/div[5]/div/button");
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 WebElement btn_2 = webDriverTovar.findElement(By.xpath("//*[@id=\"mCSB_1_container\"]/div/div[2]/span"));
                 btn_2.click();
                 try {
@@ -295,6 +311,11 @@ public class Main {
                 //без авторизации нет этой кнопки
                 WebElement signInButton_1 = webDriverTovar.findElement(By.xpath("//*[@id=\"mobileheader\"]/div[1]/div[3]/div[1]/div/div/a"));
                 signInButton_1.click();
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 WebElement emailField = webDriverTovar.findElement(By.xpath("//*[@id=\"USER_LOGIN_POPUP\"]"));
                 emailField.sendKeys("instrymentsev@yandex.ru");
                 WebElement passwordField = webDriverTovar.findElement(By.xpath("//*[@id=\"USER_PASSWORD_POPUP\"]"));
@@ -302,11 +323,17 @@ public class Main {
                 WebElement signInButton_2 = webDriverTovar.findElement(By.xpath("//*[@id=\"auth-page-form\"]/div[2]/div[2]/button"));
                 signInButton_2.click();
 
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
                 WebElement btn = webDriverTovar.findElement(By.xpath("//*[@id="+"\""+"bx_117848907_" + tovarNum +"\""+"]/div[3]/div/div/div[2]/div[5]/div/button"));
                 btn.click();
                 Document docSelenium = Jsoup.parse(webDriverTovar.getPageSource());
                 webDriverTovar.close();
-                excel.setCell(Row, 0, docSelenium.select(".ps_best_price").text());
+                excel.setCell(Row, 0, docSelenium.select(".ps_best_price").text());*/
 
                 System.out.println("parsing_" + SiteName + "/" + nameFolder + "/" + nameFolder + ".xlsx");
                 excel.Build("parsing_" + SiteName + "/" + nameFolder + "/" + "Описание" + ".xlsx");
