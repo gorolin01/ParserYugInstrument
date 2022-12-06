@@ -2,6 +2,10 @@ package sample;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -138,8 +142,8 @@ public class Main {
     }
 
     //запись в txt файл
-    private static void writeOnTxt(String data, int noOfLines) {
-        File file = new File("BufferedWriter.txt");
+    private static void writeOnTxt(String data, String path, int noOfLines) {
+        File file = new File(path);
         FileWriter fr = null;
         BufferedWriter br = null;
         String dataWithNewLine = data + System.getProperty("line.separator");
@@ -158,6 +162,41 @@ public class Main {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    public static void writeTXT(String data, String src)
+    {
+        Path path = Paths.get(src);
+
+        String OldFileData = "";
+        File file = new File(src);
+        if(file.exists()){
+            try {
+                BufferedReader reader = new BufferedReader(new FileReader(file));
+                // считаем сначала первую строку
+                String line = reader.readLine();
+                while (line != null) {
+                    OldFileData += line + "\n";
+                    // считываем остальные строки в цикле
+                    line = reader.readLine();
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            //OldFileData += "\n";
+        }
+
+        try (BufferedWriter bw = Files.newBufferedWriter(path, StandardCharsets.UTF_8))
+        {
+            bw.write(OldFileData);
+            bw.write(data);
+            System.out.println("Successfully written data to the file");
+        }
+        catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -237,16 +276,20 @@ public class Main {
                 resList = getArrayStrOnFile("sale.txt");
                 for(int e = 0; e < resList.size(); e++){
                     excel.setCell(Row + e, 0, resList.get(e));
+                    writeTXT(resList.get(e),"parsing_" + SiteName + "/" + nameFolder + "/" + "ОписаниеTXT.txt");
                 }
                 Row = Row + resList.size() + 1;
+                writeTXT("\n","parsing_" + SiteName + "/" + nameFolder + "/" + "ОписаниеTXT.txt");
 
                 //описание
                 System.out.println(doc.select(".tab-pane").select("div").text());
                 //writeOnTxt(doc.html(), 1);
                 select = doc.select(".tab-content").select(".tab-pane");
                 //writeOnTxt(docTovara.html(), 1);
+                writeTXT(docTovara.getElementById("desc").select("div").text(),"parsing_" + SiteName + "/" + nameFolder + "/" + "ОписаниеTXT.txt");
                 excel.setCell(Row, 0, docTovara.getElementById("desc").select("div").text());  //не знаю максимальной длинны строки в ячейке excel. Может быть переполнение!
                 Row = Row + 2;
+                writeTXT("\n","parsing_" + SiteName + "/" + nameFolder + "/" + "ОписаниеTXT.txt");
 
                 //характеристики
                 /*select = doc.select(".product_features");
@@ -260,35 +303,57 @@ public class Main {
                 Row++; //отступ*/
 
                 //характеристики
+                writeTXT(docTovara.select(".product-info-headnote__article").text(),
+                        "parsing_" + SiteName + "/" + nameFolder + "/" + "ОписаниеTXT.txt");
                 select = docTovara.select(".properties").select(".list").get(0).select(".properties__item").select(".properties__item--compact");
                 for(int div = 0; div < select.size(); div++){
                     excel.setCell(Row, 0, select.get(div).select(".properties__title").text());
                     excel.setCell(Row, 1, select.get(div).select(".properties__value").text());
+                    writeTXT(select.get(div).select(".properties__title").text() + ":  "
+                            + select.get(div).select(".properties__value").text(),
+                            "parsing_" + SiteName + "/" + nameFolder + "/" + "ОписаниеTXT.txt");
                     Row = Row + 1;
                 }
                 Row = Row + 1;
+                select = doc.select(".item-stock"); //наличие
+                writeTXT("Наличие: " + select.get(nomerTovara).text(),
+                        "parsing_" + SiteName + "/" + nameFolder + "/" + "ОписаниеTXT.txt");
+                writeTXT("\n","parsing_" + SiteName + "/" + nameFolder + "/" + "ОписаниеTXT.txt");
 
                 //подвал
                 resList = getArrayStrOnFile("bottom.txt");
                 for(int e = 0; e < resList.size(); e++){
                     excel.setCell(Row + e, 0, resList.get(e));
+                    writeTXT(resList.get(e),
+                            "parsing_" + SiteName + "/" + nameFolder + "/" + "ОписаниеTXT.txt");
                 }
                 Row = Row + resList.size();
+                writeTXT("\n","parsing_" + SiteName + "/" + nameFolder + "/" + "ОписаниеTXT.txt");
 
                 //цена, количество и ссылка на товар
                 Row = Row + 2;
                 select = doc.select(".item-stock"); //наличие
                 excel.setCell(Row, 0, select.get(nomerTovara).text());
+                writeTXT("Наличие: " + select.get(nomerTovara).text(),
+                        "parsing_" + SiteName + "/" + nameFolder + "/" + "ОписаниеTXT.txt");
                 Row++;
                 select = docTovara.select(".price_matrix_wrapper").get(3).select("div"); //цена (нужно будет сделать через селениум с авторизацией)
                 excel.setCell(Row, 0, select.text());
+                writeTXT("Цена(розница БЕЗ авторизации): " + select.text(),
+                        "parsing_" + SiteName + "/" + nameFolder + "/" + "ОписаниеTXT.txt");
                 Row++;
                 //select = doc.select(".pr-stock_el");
                 excel.setCell(Row, 0, ListKartochkiInPage.get(nomerTovara));
+                writeTXT("Ссылка на товар: " + ListKartochkiInPage.get(nomerTovara),
+                        "parsing_" + SiteName + "/" + nameFolder + "/" + "ОписаниеTXT.txt");
                 Row++;
                 excel.setCell(Row, 0, URLPage.get(w));
+                writeTXT(URLPage.get(w),
+                        "parsing_" + SiteName + "/" + nameFolder + "/" + "ОписаниеTXT.txt");
                 Row++;
                 excel.setCell(Row, 0, docTovara.select(".product-info-headnote__article").text());  //артикул
+                writeTXT(docTovara.select(".product-info-headnote__article").text(),
+                        "parsing_" + SiteName + "/" + nameFolder + "/" + "ОписаниеTXT.txt");
                 Row++;
 
                 /*//получим цену через селениум
